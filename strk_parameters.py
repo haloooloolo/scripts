@@ -49,11 +49,13 @@ def main():
         print(f'address {eth_address} not found in Merkle tree')
         return
 
-    amount: list[str] = merkle_info['amount'].split('.')
-    if len(amount) == 1:
-        amount.append('')
+    amount: str = merkle_info['amount']
+    if '.' in amount:
+        whole, decimal = amount.split('.')
+    else:
+        whole, decimal = amount, ''
+    balance: int = int(whole + decimal + ('0' * (18 - len(decimal))))
 
-    balance: str = amount[0] + amount[1] + '0' * (18 - len(amount[1]))
     merkle_index: str = merkle_info['merkle_index']
     len_merkle_path: int = merkle_info['merkle_path_len']
     merkle_path: list[str] = merkle_info['merkle_path']
