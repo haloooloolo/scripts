@@ -7,19 +7,20 @@ from urllib.request import urlopen
 from typing import Optional, Union
 
 
-def read_hex_addr(addr_type: str, target_len: int) -> str:
-    def is_valid(_addr: str) -> bool:
-        try:
-            int(_addr, 16)
-            prefix = '0x'
-            return _addr.startswith(prefix) and ((len(_addr) - len(prefix)) == target_len)
-        except ValueError:
-            return False
+def is_hex_addr(address: str, target_len: int) -> bool:
+    try:
+        int(address, 16)
+        prefix = '0x'
+        return address.startswith(prefix) and ((len(address) - len(prefix)) == target_len)
+    except ValueError:
+        return False
 
+
+def read_hex_addr(addr_type: str, target_len: int) -> str:
     def read() -> str:
         return input(f'{addr_type} address: ').strip()
 
-    while not is_valid(addr := read()):
+    while not is_hex_addr(addr := read(), target_len):
         print(f'not a valid {addr_type} address, try again')
 
     return addr
@@ -28,6 +29,11 @@ def read_hex_addr(addr_type: str, target_len: int) -> str:
 def main():
     eth_address = read_hex_addr('ETH', 40)
     starknet_address = read_hex_addr('StarkNet', 64)
+
+    target_address = '0x026942155437167f8a18c2602637e30d636f0ce7a88d5ed465f8d1f08f1ea015'
+    assert is_hex_addr(target_address, 64)
+    selector_address = '0x00828430c65c40cba334d4723a4c5c02a62f612d73d564a1c7dc146f1d0053f9'
+    assert is_hex_addr(selector_address, 64)
 
     def get_merkle_info() -> Optional[dict[str, Union[str, list, int]]]:
         context = ssl._create_unverified_context()
@@ -67,11 +73,11 @@ def main():
     print()
     print('toAddress')
     print('------------------------------')
-    print('0x026942155437167f8a18c2602637e30d636f0ce7a88d5ed465f8d1f08f1ea015')
+    print(target_address)
     print()
     print('selector')
     print('------------------------------')
-    print('0x00828430c65c40cba334d4723a4c5c02a62f612d73d564a1c7dc146f1d0053f9')
+    print(selector_address)
     print()
     print('payload')
     print('------------------------------')
