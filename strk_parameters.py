@@ -18,7 +18,7 @@ def is_hex_addr(address: str, target_len: int) -> bool:
 
 def read_hex_addr(addr_type: str, target_len: int) -> str:
     def read() -> str:
-        return input(f'{addr_type} address: ').strip()
+        return input(f'{addr_type} address: ').strip().lower()
 
     while not is_hex_addr(addr := read(), target_len):
         print(f'not a valid {addr_type} address, try again')
@@ -26,7 +26,7 @@ def read_hex_addr(addr_type: str, target_len: int) -> str:
     return addr
 
 
-def main():
+def main() -> None:
     eth_address = read_hex_addr('ETH', 40)
     starknet_address = read_hex_addr('StarkNet', 64)
 
@@ -36,23 +36,23 @@ def main():
     assert is_hex_addr(selector_address, 64)
 
     def get_merkle_info() -> Optional[dict[str, Union[str, list, int]]]:
+        print()
         context = ssl._create_unverified_context()
         for i in range(10):
-            url = f'https://raw.githubusercontent.com/starknet-io/provisions-data/main/eth/eth-{i}.json'
-            print(f'checking {url}')
-            with urlopen(url, context=context) as file:
+            merkle_url = f'https://raw.githubusercontent.com/starknet-io/provisions-data/main/eth/eth-{i}.json'
+            print(f'checking {merkle_url}')
+            with urlopen(merkle_url, context=context) as file:
                 data = json.load(file)
                 for info in data['eligibles']:
-                    if info['identity'] == eth_address.lower():
+                    if info['identity'] == eth_address:
                         return info
         return None
 
-    print()
     merkle_info = get_merkle_info()
-    print()
 
+    print()
     if merkle_info is None:
-        print(f'address {eth_address} not found in Merkle tree')
+        print(f'{eth_address} not found in Merkle tree')
         return
 
     amount: str = merkle_info['amount']
@@ -62,10 +62,19 @@ def main():
         whole, decimal = amount, ''
     balance: int = int(whole + decimal + ('0' * (18 - len(decimal))))
 
-    merkle_index: str = merkle_info['merkle_index']
+    merkle_index: int = int(merkle_info['merkle_index'])
     len_merkle_path: int = merkle_info['merkle_path_len']
     merkle_path: list[str] = merkle_info['merkle_path']
     assert (len_merkle_path == len(merkle_path))
+
+    def quote(_param: Union[str, int]) -> str:
+        return f'"{_param}"'
+
+    payload: list[str] = []
+    payload.extend(map(quote, (eth_address, balance)))
+    payload.extend(map(str, (0, merkle_index, len_merkle_path)))
+    payload.extend(map(quote, merkle_path))
+    payload.extend(map(quote, (starknet_address,)))
 
     print('payableAmount')
     print('------------------------------')
@@ -81,9 +90,7 @@ def main():
     print()
     print('payload')
     print('------------------------------')
-    print(f'"{eth_address}", "{balance}", 0, {merkle_index}, {len_merkle_path}', end=', ')
-    print(', '.join([f'"{node}"' for node in merkle_path]), end=', ')
-    print(f'"{starknet_address}"')
+    print(', '.join(payload))
 
 
 if __name__ == '__main__':
