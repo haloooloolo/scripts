@@ -43,6 +43,7 @@ def main():
 
     print()
     merkle_info = get_merkle_info()
+    print()
 
     if merkle_info is None:
         print(f'address {eth_address} not found in Merkle tree')
