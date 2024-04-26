@@ -10,10 +10,11 @@ from typing import Optional, Union
 def is_hex_addr(address: str, target_len: int) -> bool:
     try:
         int(address, 16)
-        prefix = '0x'
-        return address.startswith(prefix) and ((len(address) - len(prefix)) == target_len)
     except ValueError:
         return False
+
+    prefix = '0x'
+    return address.startswith(prefix) and (len(address) - len(prefix) == target_len)
 
 
 def read_hex_addr(addr_type: str, target_len: int) -> str:
@@ -28,7 +29,7 @@ def read_hex_addr(addr_type: str, target_len: int) -> str:
 
 def main() -> None:
     eth_address = read_hex_addr('ETH', 40)
-    starknet_address = read_hex_addr('StarkNet', 64)
+    starknet_address = read_hex_addr('Starknet', 64)
 
     target_address = '0x026942155437167f8a18c2602637e30d636f0ce7a88d5ed465f8d1f08f1ea015'
     assert is_hex_addr(target_address, 64)
