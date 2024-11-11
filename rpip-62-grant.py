@@ -120,8 +120,10 @@ def main(args):
     payout_shares = {k: round(new_payout * v, 2) for k, v in payout_shares.items()}
     payout_shares[list(payout_shares.keys())[0]] -= sum(payout_shares.values()) - new_payout
 
-    print(f"Total grant payout: ${grant_payout:,.2f} / ${grant_limit:,.2f}")
-    print(f"New payout:         ${new_payout:,.2f}")
+    print(f"Total payout: ${grant_payout:,.2f} / ${grant_limit:,.2f}")
+    print(f"New payout: ${new_payout:,.2f}")
+    print(f"")
+    print(f"Breakdown")
     print(f"------------------------------------------------------------")
     for name, payout in payout_shares.items():
         print(f"{name} : ${payout:,.2f}")
